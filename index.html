@@ -1,763 +1,794 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>One Last Image API</title>
-    <style>
-      :root {
-        --color-primary: #007aff;
-        --color-primary-light: #e6f2ff;
-        --color-primary-dark: #0056b3;
-        --color-bg: #f4f7fa;
-        --color-card: #ffffff;
-        --color-text: #2c3e50;
-        --color-text-light: #5a7184;
-        --color-border: #e0e6ed;
-        --color-success: #28a745;
-        --color-danger: #dc3545;
-        --shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.1);
-        --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
-        --radius: 12px;
-      }
+<style>
+:root {
+    /* 更加活泼的绿色系 */
+    --color-primary: #66a9b5; /* Lime Green */
+    --color-primary-light: #f7f7f7; /* Light Green */
+    --color-primary-dark: #22718b; /* Forest Green */
+    
+    /* 温暖的米色/浅灰色背景 */
+    --color-bg: #FDF9F3; /* Creamy White */
+    --color-card: #FFFFFF;
+    --color-text: #2F4F4F; /* Dark Slate Gray */
+    --color-text-light: #696969; /* Dim Gray */
+    --color-border: #E0E0E0; /* Light Gray */
+    
+    --color-success: #c5b54a; /* Bootstrap Green */
+    --color-danger: #DC3545; /* Bootstrap Red */
+    
+    --shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.1), 0 3px 9px -1px rgba(0, 0, 0, 0.06);
+    --shadow-light: 0 2px 5px 0 rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    
+    --radius: 12px;
+}
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-        margin: 0;
-        background-color: var(--color-bg);
-        color: var(--color-text);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        min-height: 100vh;
-        box-sizing: border-box;
-      }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
 
-      .container {
-        width: 100%;
-        max-width: 1200px;
-      }
+.container {
+    width: 100%;
+    max-width: 1200px;
+}
 
-      header {
-        text-align: center;
-        padding-bottom: 20px;
-        margin-bottom: 30px;
-        border-bottom: 1px solid var(--color-border);
-      }
-      header h1 {
-        color: var(--color-text);
-        font-weight: 700;
-        margin: 0;
-      }
-      header p {
-        font-size: 1.1em;
-        color: var(--color-text-light);
-        margin: 5px 0 0;
-      }
-      main {
-        display: grid;
+header {
+    text-align: center;
+    padding-bottom: 25px;
+    margin-bottom: 35px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+header h1 {
+    color: var(--color-primary-dark); /* 标题使用深主题色 */
+    font-weight: 700;
+    font-size: 2.2em;
+    margin: 0 0 4px;
+}
+
+header p {
+    font-size: 1.05em;
+    color: var(--color-text-light);
+    margin: 5px 0 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+.result-area {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.image-box {
+    background: var(--color-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--color-border);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+}
+
+.image-box h3 {
+    margin: 0 0 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+.image-wrapper {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--color-border);
+}
+
+.image-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: none;
+}
+
+.image-wrapper .placeholder {
+    color: var(--color-text-light);
+    padding: 20px;
+    text-align: center;
+    font-size: 0.95em;
+}
+
+#loading,
+#error-message {
+    display: none;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-top: -10px;
+    border: 1px solid;
+}
+
+#loading {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    border-color: #BEE0FF;
+    text-align: center;
+}
+
+#error-message {
+    background: #FFF1F2;
+    color: var(--color-danger);
+    border-color: #FFD6D9;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 30px;
+}
+
+.card {
+    background: var(--color-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--color-border);
+    padding: 28px;
+}
+
+.card h2 {
+    margin: 0 0 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.file-upload-label {
+    display: block;
+    width: 100%;
+    padding: 25px 0;
+    background: var(--color-bg);
+    color: var(--color-text-light);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+}
+
+.file-upload-label:hover {
+    background: var(--color-card);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+#image-input {
+    display: none;
+}
+
+#file-name {
+    display: block;
+    text-align: center;
+    color: var(--color-text-light);
+    margin-top: 12px;
+    font-size: 0.9em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#generate-button {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.05em;
+    font-weight: 600;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 20px;
+    box-shadow: var(--shadow-light);
+}
+
+#generate-button:hover:not(:disabled) {
+    background-color: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+#generate-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.config-group {
+    margin-bottom: 20px;
+}
+
+.config-group:last-child {
+    margin-bottom: 0;
+}
+
+.config-group h3 {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 25px 0 15px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--color-border);
+}
+
+.config-group>label {
+    font-weight: 600;
+    font-size: 0.95em;
+    color: var(--color-text-light);
+    display: block;
+    margin-bottom: 8px;
+}
+
+select {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background-color: var(--color-card);
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.7rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+    padding-right: 2.5rem;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.switch-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 5px;
+}
+
+.ui-switch {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px;
+    background-color: var(--color-card);
+    border-radius: 30px;
+    border: 1px solid var(--color-border);
+    transition: all 0.2s;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.ui-switch .text {
+    margin-left: 8px;
+    padding-right: 6px;
+    font-weight: 500;
+    font-size: 0.95em;
+    color: var(--color-text-light);
+    transition: color 0.2s;
+}
+
+.ui-switch:hover {
+    background-color: var(--color-bg);
+    border-color: #D1D5DB;
+}
+
+.ui-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.ui-switch .slider {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 22px;
+    background-color: var(--color-border);
+    transition: 0.3s;
+    border-radius: 22px;
+}
+
+.ui-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.ui-switch input:checked+.slider {
+    background-color: var(--color-primary);
+}
+
+.ui-switch input:checked+.slider:before {
+    transform: translateX(16px);
+}
+
+.ui-switch input:checked+.slider+.text {
+    color: var(--color-primary-dark);
+    font-weight: 600;
+}
+
+.ui-switch[data-disabled="true"],
+.range-slider[data-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.range-slider {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.range-slider:last-child {
+    margin-bottom: 0;
+}
+
+.range-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.range-row label {
+    font-weight: 500;
+    font-size: 0.95em;
+    color: var(--color-text);
+}
+
+.range-row .value-display {
+    font-weight: 500;
+    color: var(--color-primary-dark);
+    font-size: 0.9em;
+    min-width: 30px;
+    text-align: right;
+    background-color: var(--color-primary-light);
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 5px;
+    background: var(--color-border);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+input[type="range"]:hover {
+    opacity: 0.85;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    color: var(--color-text-light);
+    font-size: 0.9em;
+}
+
+footer a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+    main {
         grid-template-columns: 1fr;
-        gap: 30px;
-      }
+    }
 
-      /* --- 结果区域 --- */
-      .result-area {
-        display: flex;
-        flex-direction: column;
-        gap: 30px;
-      }
-      .image-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+    .controls {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 20px 15px;
+    }
+
+    main,
+    .result-area {
         gap: 20px;
-      }
-      .image-box {
-        background: var(--color-card);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow-light);
+    }
+
+    .controls {
+        gap: 20px;
+    }
+
+    header {
+        margin-bottom: 25px;
+    }
+
+    .image-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .card,
+    .image-box {
         padding: 20px;
-        display: flex;
-        flex-direction: column;
-        min-height: 300px;
-      }
-      .image-box h3 {
-        margin: 0 0 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--color-border);
-        color: var(--color-text);
-        font-weight: 600;
-      }
-      .image-wrapper {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--color-bg);
-        border-radius: 8px;
-        overflow: hidden;
-        position: relative;
-      }
-      .image-wrapper img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        display: none; /* 默认隐藏 */
-      }
-      .image-wrapper .placeholder {
-        color: var(--color-text-light);
-        font-style: italic;
-        padding: 20px;
-        text-align: center;
-      }
-      #loading,
-      #error-message {
-        display: none;
-        padding: 15px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        margin-top: -10px; /* 抵消一点 gap */
-      }
-      #loading {
-        background: var(--color-primary-light);
-        color: var(--color-primary-dark);
-        border: 1px solid var(--color-primary-light);
-        text-align: center;
-      }
-      #error-message {
-        background: #fff0f1;
-        color: var(--color-danger);
-        border: 1px solid #ffdfe2;
-      }
+    }
+}
 
-      .controls {
-        display: grid;
-        grid-template-columns: 380px 1fr;
-        gap: 30px;
-      }
-      .card {
-        background: var(--color-card);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow-light);
-        padding: 25px;
-      }
-      .card h2 {
-        margin: 0 0 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid var(--color-border);
-        font-size: 1.25em;
-        font-weight: 600;
-      }
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--color-border);
+}
+.card .card-header h2 {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-size: 1.2em;
+    font-weight: 600;
+    text-align: left;
+    margin-right: 20px;
+}
 
-      /* 核心操作按钮 */
-      .file-upload-label {
-        display: block;
-        width: 100%;
-        padding: 15px 0;
-        background: var(--color-primary-light);
-        color: var(--color-primary-dark);
-        border: 2px dashed var(--color-primary);
-        border-radius: 8px;
-        text-align: center;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        box-sizing: border-box;
-      }
-      .file-upload-label:hover {
-        background: #dbeeff;
-        border-color: var(--color-primary-dark);
-      }
-      #image-input {
-        display: none;
-      }
-      #file-name {
-        display: block;
-        text-align: center;
-        color: var(--color-text-light);
-        margin-top: 10px;
-        font-size: 0.9em;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      #generate-button {
-        width: 100%;
-        padding: 15px;
-        font-size: 1.1em;
-        font-weight: 600;
-        background-color: var(--color-primary);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        margin-top: 20px;
-      }
-      #generate-button:hover:not(:disabled) {
-        background-color: var(--color-primary-dark);
-      }
-      #generate-button:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-      }
+.button-secondary {
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.9em;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-light);
+}
 
-      /* --- 可视化配置 --- */
-      .config-group {
-        margin-bottom: 15px;
-      }
-      .config-group:last-child {
-        margin-bottom: 0;
-      }
+.button-secondary:hover {
+    background-color: var(--color-bg);
+    border-color: #D1D5DB;
+    color: var(--color-text);
+    box-shadow: none;
+}
 
-      /* 组标题 (用于滑块) */
-      .config-group h3 {
-        font-size: 1em;
-        font-weight: 600;
-        color: var(--color-text-light);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin: 20px 0 15px;
-        padding-top: 15px;
-        border-top: 1px dashed var(--color-border);
-      }
 
-      /* 下拉菜单 (Select) */
-      .config-group > label {
-        /* 用于下拉菜单的 label */
-        font-weight: 600;
-        font-size: 0.9em;
-        color: var(--color-text-light);
-        display: block;
-        margin-bottom: 8px;
-      }
-      select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        background-color: #fcfcfc;
-        font-size: 1em;
-        cursor: pointer;
-      }
-      select:focus {
-        outline: none;
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 2px var(--color-primary-light);
-      }
+.api-code-block {
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 10px 10px 10px 16px;
+    display: inline-flex;
+    margin-top: 25px;
+    max-width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    box-sizing: border-box;
+}
 
-      /* 新的开关组 (水平排列) */
-      .switch-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        padding-top: 5px;
-      }
+.api-code-block pre {
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: var(--color-text);
+    line-height: 1.5;
+    text-align: left;
+}
 
-      .ui-switch {
-        display: inline-flex;
-        align-items: center;
-        cursor: pointer;
-        padding: 6px 10px 6px 6px;
-        background-color: var(--color-bg);
-        border-radius: 20px;
-        border: 1px solid var(--color-border);
-        transition: all 0.2s;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-      .ui-switch .text {
-        margin-left: 8px;
-        padding-right: 4px; /* 增加一点右边距 */
-        font-weight: 500;
-        font-size: 0.9em;
-        color: var(--color-text-light);
-        transition: color 0.2s;
-      }
-      .ui-switch:hover {
-        background-color: #eaf0f6;
-        border-color: #cdd8e4;
-      }
+.api-code-block code {
+    font-size: 1em;
+}
 
-      .ui-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-        position: absolute; /* 隐藏 input 本身 */
-      }
+.api-code-block button {
+    background-color: var(--color-card);
+    color: var(--color-text-light);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.9em;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 15px;
+    flex-shrink: 0;
+}
 
-      /* 开关的滑块样式 */
-      .ui-switch .slider {
-        position: relative;
-        display: inline-block;
-        width: 38px;
-        height: 22px;
-        background-color: #ccc;
-        transition: 0.3s;
-        border-radius: 22px;
-      }
-      .ui-switch .slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        transition: 0.3s;
-        border-radius: 50%;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-      }
+.api-code-block button:hover {
+    background-color: #F8F9FA;
+    color: var(--color-text);
+    border-color: #D1D5DB;
+}
 
-      .ui-switch input:checked + .slider {
-        background-color: var(--color-primary);
-      }
-      .ui-switch input:checked + .slider:before {
-        transform: translateX(16px);
-      }
-      .ui-switch input:checked + .slider + .text {
-        color: var(--color-text);
-        font-weight: 500;
-      }
+.api-code-block button.copied {
+    background-color: var(--color-success);
+    border-color: #059669;
+    color: white;
+}
+</style>
+</head>
 
-      /* 依赖禁用样式 */
-      .ui-switch[data-disabled="true"],
-      .range-slider[data-disabled="true"] {
-        opacity: 0.5;
-        pointer-events: none;
-      }
-
-      /* 滑块 (Range Slider) */
-      .range-slider {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 15px;
-      }
-      .range-slider:last-child {
-        margin-bottom: 0;
-      }
-      .range-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      .range-row label {
-        font-weight: 500;
-        font-size: 0.95em;
-      }
-      .range-row .value-display {
-        font-weight: 600;
-        color: var(--color-primary);
-        font-size: 0.9em;
-        min-width: 30px;
-        text-align: right;
-        background-color: var(--color-primary-light);
-        padding: 2px 6px;
-        border-radius: 4px;
-      }
-      input[type="range"] {
-        width: 100%;
-        -webkit-appearance: none;
-        appearance: none;
-        height: 6px;
-        background: var(--color-border);
-        border-radius: 3px;
-        outline: none;
-        cursor: pointer;
-      }
-      input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        background: var(--color-primary);
-        border-radius: 50%;
-        cursor: pointer;
-        border: 3px solid white;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-      }
-      input[type="range"]::-moz-range-thumb {
-        width: 12px; /* 减去边框 */
-        height: 12px; /* 减去边框 */
-        background: var(--color-primary);
-        border-radius: 50%;
-        cursor: pointer;
-        border: 3px solid white;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      /* 页脚 */
-      footer {
-        text-align: center;
-        margin-top: 40px;
-        color: var(--color-text-light);
-        font-size: 0.9em;
-      }
-      footer a {
-        color: var(--color-primary);
-        text-decoration: none;
-        font-weight: 500;
-      }
-      footer a:hover {
-        text-decoration: underline;
-      }
-
-      /* 响应式布局 */
-      @media (max-width: 900px) {
-        main {
-          grid-template-columns: 1fr;
-        }
-        .controls {
-          grid-template-columns: 1fr;
-        }
-      }
-      @media (max-width: 600px) {
-        body {
-          padding: 15px;
-        }
-        main,
-        .result-area {
-          gap: 20px;
-        }
-        header {
-          margin-bottom: 20px;
-        }
-        .image-grid {
-          grid-template-columns: 1fr;
-          gap: 20px;
-        }
-        .card,
-        .image-box {
-          padding: 20px;
-        }
-      }
-            .api-code-block {
-            background-color: var(--color-bg);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 12px 16px;
-            display: inline-flex; 
-            margin-top: 20px; 
-            max-width: 100%; 
-            
-            justify-content: space-between;
-            align-items: center;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-            box-sizing: border-box; 
-        }
-        
-        .api-code-block pre {
-            margin: 0;
-            padding: 0;
-            overflow-x: auto; /* URL太长时滚动 */
-            white-space: pre-wrap; /* 优先换行 */
-            word-break: break-all; /* 强制断词 */
-            color: var(--color-text);
-            line-height: 1.5;
-            text-align: left; /* 覆盖 header 的 text-align: center */
-        }
-
-        .api-code-block code {
-            font-size: 0.95em;
-        }
-
-        .api-code-block button {
-            background-color: #cfe0e7;
-            color: var(--color-text-light);
-            border: 1px solid var(--color-border);
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 0.9em;
-            font-weight: 500;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-left: 15px; /* 与 URL 文本隔开 */
-            flex-shrink: 0; /* 防止按钮被压缩 */
-        }
-        
-        .api-code-block button:hover {
-            background-color: #dce4eb;
-            color: var(--color-text);
-        }
-
-        /* 复制成功后的反馈样式 */
-        .api-code-block button.copied {
-            background-color: var(--color-success);
-            border-color: var(--color-success);
-            color: white;
-        }
-    </style>
-  </head>
-  <body>
+<body>
     <div class="container">
-      <header>
-                   
-        <h1>🧸 One Last Image API</h1>                   
-        <p>API 部署成功！</p>                   
-        <p>本页面可直接调用 API 在线使用</p>
+        <header>
+                       
+            <h1>🧸 One Last Image API</h1>            
+            <p>API 部署成功！</p>            
+            <p>本页面可直接调用 API 在线使用</p>
 
-                               
-        <div class="api-code-block">
-                         
-          <pre><code id="api-url-display">...</code></pre>
-                         
-          <button type="button" id="copy-api-url" title="复制 API URL">
-            复制
-          </button>
-                     
-        </div>
-                           
-      </header>
-
-      <main>
-        <div class="result-area">
-          <div id="loading">
-            正在生成中，请稍候... (Vercel 冷启动可能需要 10-20s)
-          </div>
-          <div id="error-message"></div>
-
-          <div class="image-grid">
-            <div class="image-box">
-              <h3>原始图片</h3>
-              <div class="image-wrapper">
-                <img id="original-image" alt="Original" />
-                <span class="placeholder" id="original-placeholder"
-                  >上传图片后在此显示</span
-                >
-              </div>
+                                   
+            <div class="api-code-block">
+                               
+                <pre><code id="api-url-display">...</code></pre>
+                               
+                <button type="button" id="copy-api-url" title="复制 API URL">
+                    复制
+                </button>
+                           
             </div>
-            <div class="image-box">
-              <h3>生成结果</h3>
-              <div class="image-wrapper">
-                <img id="result-image" alt="Result" />
-                <span class="placeholder" id="result-placeholder"
-                  >点击生成后在此显示</span
-                >
-              </div>
-            </div>
-          </div>
-        </div>
+                               
+        </header>
 
-        <form class="controls" id="api-form">
-          <div class="card">
-            <h2>1. 操作</h2>
-            <input
-              type="file"
-              id="image-input"
-              accept="image/png, image/jpeg, image/webp"
-              required
-            />
-            <label for="image-input" class="file-upload-label">选择图片</label>
-            <span id="file-name">未选择文件</span>
+        <main>
+            <div class="result-area">
+                <div id="loading">
+                    正在生成中，请稍候... (Vercel 冷启动可能需要 10-20s)
+                </div>
+                <div id="error-message"></div>
 
-            <button type="submit" id="generate-button">生成</button>
-          </div>
-
-          <div class="card">
-            <h2>2. 可视化配置</h2>
-
-            <div class="config-group">
-              <label for="config-convoluteName">风格效果</label>
-              <select id="config-convoluteName" name="convoluteName">
-                <option value="精细">精细</option>
-                <option value="一般" selected>一般 (默认)</option>
-                <option value="稍粗">稍粗</option>
-                <option value="超粗">超粗</option>
-                <option value="极粗">极粗</option>
-                <option value="浮雕">浮雕</option>
-              </select>
+                <div class="image-grid">
+                    <div class="image-box">
+                        <h3>原始图片</h3>
+                        <div class="image-wrapper">
+                            <img id="original-image" alt="Original" />
+                            <span class="placeholder" id="original-placeholder">上传图片后在此显示</span>
+                        </div>
+                    </div>
+                    <div class="image-box">
+                        <h3>生成结果</h3>
+                        <div class="image-wrapper">
+                            <img id="result-image" alt="Result" />
+                            <span class="placeholder" id="result-placeholder">点击生成后在此显示</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="config-group">
-              <div class="switch-group">
-                <label class="ui-switch">
-                  <input
-                    type="checkbox"
-                    id="config-denoise"
-                    name="denoise"
-                    checked
-                  />
-                  <span class="slider"></span>
-                  <span class="text">降噪</span>
-                </label>
-                <label class="ui-switch">
-                  <input
-                    type="checkbox"
-                    id="config-convolute1Diff"
-                    name="convolute1Diff"
-                    checked
-                  />
-                  <span class="slider"></span>
-                  <span class="text">卷积差异</span>
-                </label>
-                <label class="ui-switch">
-                  <input type="checkbox" id="config-kuma" name="kuma" checked />
-                  <span class="slider"></span>
-                  <span class="text">"Kiss" 渐变</span>
-                </label>
-                <label class="ui-switch">
-                  <input
-                    type="checkbox"
-                    id="config-shade"
-                    name="shade"
-                    checked
-                  />
-                  <span class="slider"></span>
-                  <span class="text">启用阴影</span>
-                </label>
-                <label class="ui-switch">
-                  <input
-                    type="checkbox"
-                    id="config-watermark"
-                    name="watermark"
-                    checked
-                  />
-                  <span class="slider"></span>
-                  <span class="text">显示水印</span>
-                </label>
-                <label
-                  class="ui-switch"
-                  id="hajimei-control"
-                  data-depends-on="config-watermark"
-                >
-                  <input type="checkbox" id="config-hajimei" name="hajimei" />
-                  <span class="slider"></span>
-                  <span class="text">彩色水印</span>
-                </label>
-              </div>
-            </div>
+            <form class="controls" id="api-form">
+                <div class="card">
+                    <h2>操作</h2>
+                    <input type="file" id="image-input" accept="image/png, image/jpeg, image/webp" required />
+                    <label for="image-input" class="file-upload-label">选择图片</label>
+                    <span id="file-name">未选择文件</span>
 
-            <div class="config-group">
-              <h3>参数调整</h3>
-              <div
-                class="range-slider"
-                id="shade-limit-control"
-                data-depends-on="config-shade"
-              >
-                <div class="range-row">
-                  <label for="config-shadeLimit">阴影阈值</label>
-                  <span class="value-display" id="shadeLimit-val">108</span>
+                    <button type="submit" id="generate-button">生成</button>
                 </div>
-                <input
-                  type="range"
-                  id="config-shadeLimit"
-                  name="shadeLimit"
-                  min="0"
-                  max="255"
-                  value="108"
-                />
-              </div>
-              <div
-                class="range-slider"
-                id="shade-light-control"
-                data-depends-on="config-shade"
-              >
-                <div class="range-row">
-                  <label for="config-shadeLight">阴影强度</label>
-                  <span class="value-display" id="shadeLight-val">80</span>
-                </div>
-                <input
-                  type="range"
-                  id="config-shadeLight"
-                  name="shadeLight"
-                  min="0"
-                  max="255"
-                  value="80"
-                />
-              </div>
-              <div class="range-slider">
-                <div class="range-row">
-                  <label for="config-light">亮度调整</label>
-                  <span class="value-display" id="light-val">0</span>
-                </div>
-                <input
-                  type="range"
-                  id="config-light"
-                  name="light"
-                  min="-100"
-                  max="100"
-                  value="0"
-                />
-              </div>
-              <div class="range-slider">
-                <div class="range-row">
-                  <label for="config-lightCut">亮部切割</label>
-                  <span class="value-display" id="lightCut-val">128</span>
-                </div>
-                <input
-                  type="range"
-                  id="config-lightCut"
-                  name="lightCut"
-                  min="0"
-                  max="255"
-                  value="128"
-                />
-              </div>
-              <div class="range-slider">
-                <div class="range-row">
-                  <label for="config-darkCut">暗部切割</label>
-                  <span class="value-display" id="darkCut-val">118</span>
-                </div>
-                <input
-                  type="range"
-                  id="config-darkCut"
-                  name="darkCut"
-                  min="0"
-                  max="255"
-                  value="118"
-                />
-              </div>
-              <div class="range-slider">
-                <div class="range-row">
-                  <label for="config-zoom">缩放比例</label>
-                  <span class="value-display" id="zoom-val">1.0</span>
-                </div>
-                <input
-                  type="range"
-                  id="config-zoom"
-                  name="zoom"
-                  min="0.5"
-                  max="3"
-                  value="1"
-                  step="0.1"
-                />
-              </div>
-            </div>
-          </div>
-        </form>
-      </main>
 
-      <footer>
-        <p>
-          API 部署在 Vercel。
-          <a
-            href="https://github.com/timetetng/one-last-image-api"
-            target="_blank"
-            rel="noopener noreferrer"
-            >查看 GitHub 仓库</a
-          >
-          获取完整文档。
-        </p>
-      </footer>
+                <div class="card">
+                    <div class="card-header">
+                          <h2>配置</h2>
+                           <button type="button" id="reset-config-button"
+                            class="button-secondary">重置为默认</button>
+                                    </div>
+
+                    <div class="config-group">
+                        <label for="config-convoluteName">风格效果</label>
+                        <select id="config-convoluteName" name="convoluteName">
+                            <option value="精细">精细</option>
+                            <option value="一般" selected>一般 (默认)</option>
+                            <option value="稍粗">稍粗</option>
+                            <option value="超粗">超粗</option>
+                            <option value="极粗">极粗</option>
+                            <option value="浮雕">浮雕</option>
+                        </select>
+                    </div>
+
+                    <div class="config-group">
+                        <div class="switch-group">
+                            <label class="ui-switch">
+                                <input type="checkbox" id="config-denoise" name="denoise" checked />
+                                <span class="slider"></span>
+                                <span class="text">降噪</span>
+                            </label>
+                            <label class="ui-switch">
+                                <input type="checkbox" id="config-convolute1Diff" name="convolute1Diff" checked />
+                                <span class="slider"></span>
+                                <span class="text">卷积差异</span>
+                            </label>
+                            <label class="ui-switch">
+                                <input type="checkbox" id="config-kuma" name="kuma" checked />
+                                <span class="slider"></span>
+                                <span class="text">"Kiss" 渐变</span>
+                            </label>
+                            <label class="ui-switch">
+                                <input type="checkbox" id="config-shade" name="shade" checked />
+                                <span class="slider"></span>
+                                <span class="text">启用阴影</span>
+                            </label>
+                            <label class="ui-switch">
+                                <input type="checkbox" id="config-watermark" name="watermark" checked />
+                                <span class="slider"></span>
+                                <span class="text">显示水印</span>
+                            </label>
+                            <label class="ui-switch" id="hajimei-control" data-depends-on="config-watermark">
+                                <input type="checkbox" id="config-hajimei" name="hajimei" />
+                                <span class="slider"></span>
+                                <span class="text">彩色水印</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <h3>参数调整</h3>
+                        <div class="range-slider" id="shade-limit-control" data-depends-on="config-shade">
+                            <div class="range-row">
+                                <label for="config-shadeLimit">阴影阈值</label>
+                                <span class="value-display" id="shadeLimit-val">108</span>
+                            </div>
+                            <input type="range" id="config-shadeLimit" name="shadeLimit" min="0" max="255"
+                                value="108" />
+                        </div>
+                        <div class="range-slider" id="shade-light-control" data-depends-on="config-shade">
+                            <div class="range-row">
+                                <label for="config-shadeLight">阴影强度</label>
+                                <span class="value-display" id="shadeLight-val">80</span>
+                            </div>
+                            <input type="range" id="config-shadeLight" name="shadeLight" min="0" max="255" value="80" />
+                        </div>
+                        <div class="range-slider">
+                            <div class="range-row">
+                                <label for="config-light">亮度调整</label>
+                                <span class="value-display" id="light-val">0</span>
+                            </div>
+                            <input type="range" id="config-light" name="light" min="-100" max="100" value="0" />
+                        </div>
+                        <div class="range-slider">
+                            <div class="range-row">
+                                <label for="config-lightCut">亮部切割</label>
+                                <span class="value-display" id="lightCut-val">128</span>
+                            </div>
+                            <input type="range" id="config-lightCut" name="lightCut" min="0" max="255" value="128" />
+                        </div>
+                        <div class="range-slider">
+                            <div class="range-row">
+                                <label for="config-darkCut">暗部切割</label>
+                                <span class="value-display" id="darkCut-val">118</span>
+                            </div>
+                            <input type="range" id="config-darkCut" name="darkCut" min="0" max="255" value="118" />
+                        </div>
+                        <div class="range-slider">
+                            <div class="range-row">
+                                <label for="config-zoom">缩放比例</label>
+                                <span class="value-display" id="zoom-val">1.0</span>
+                            </div>
+                            <input type="range" id="config-zoom" name="zoom" min="0.5" max="3" value="1" step="0.1" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </main>
+
+        <footer>
+            <p>
+                API 部署在 Vercel。
+                <a href="https://github.com/timetetng/one-last-image-api" target="_blank" rel="noopener noreferrer">查看
+                    GitHub 仓库</a>
+                获取完整文档。
+            </p>
+        </footer>
     </div>
 
     <script>
-            document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
 
             const apiUrlElement = document.getElementById('api-url-display');
             const copyButton = document.getElementById('copy-api-url');
-            
+
             if (apiUrlElement && copyButton) {
                 // 1. 动态生成 URL
                 const dynamicApiUrl = window.location.origin + '/api/generate';
-                
+
                 // 2. 将 URL 设置到 code 元素中
                 apiUrlElement.textContent = dynamicApiUrl;
-                
+
                 // 3. 为复制按钮添加点击事件
                 copyButton.addEventListener('click', () => {
                     navigator.clipboard.writeText(dynamicApiUrl).then(() => {
@@ -765,13 +796,13 @@
                         const originalText = copyButton.textContent;
                         copyButton.textContent = '已复制!';
                         copyButton.classList.add('copied');
-                        
+
                         // 2秒后恢复
                         setTimeout(() => {
                             copyButton.textContent = originalText;
                             copyButton.classList.remove('copied');
                         }, 2000);
-                        
+
                     }).catch(err => {
                         // 复制失败反馈
                         console.error('无法复制到剪贴板: ', err);
@@ -782,206 +813,251 @@
                     });
                 });
             }
+            const resetButton = document.getElementById('reset-config-button');
 
-        const apiForm = document.getElementById("api-form");
-        const imageInput = document.getElementById("image-input");
-        const fileNameDisplay = document.getElementById("file-name");
-        const generateButton = document.getElementById("generate-button");
+            if (resetButton) {
+                // 辅助函数：设置滑块值并更新显示
+                const setSliderValue = (sliderId, displayId, value) => {
+                    const slider = document.getElementById(sliderId);
+                    const display = document.getElementById(displayId);
+                    if (slider) {
+                        slider.value = value;
+                        if (display) {
+                            // 使用您现有的逻辑来格式化显示
+                            display.textContent = parseFloat(slider.value).toFixed(slider.step == '0.1' ? 1 : 0);
+                        }
+                    }
+                };
 
-        const originalImage = document.getElementById("original-image");
-        const originalPlaceholder = document.getElementById(
-          "original-placeholder"
-        );
-        const resultImage = document.getElementById("result-image");
-        const resultPlaceholder = document.getElementById("result-placeholder");
+                // 重置函数
+                const resetConfigToDefaults = () => {
+                    // 下拉菜单
+                    document.getElementById('config-convoluteName').value = '一般';
 
-        const loadingIndicator = document.getElementById("loading");
-        const errorMessage = document.getElementById("error-message");
+                    // 开关
+                    document.getElementById('config-denoise').checked = true;
+                    document.getElementById('config-convolute1Diff').checked = true;
+                    document.getElementById('config-kuma').checked = true;
+                    document.getElementById('config-shade').checked = true;
+                    document.getElementById('config-watermark').checked = true;
+                    document.getElementById('config-hajimei').checked = false;
 
-        let originalObjectURL = null;
-        let resultObjectURL = null;
+                    // 滑块
+                    setSliderValue('config-shadeLimit', 'shadeLimit-val', '108');
+                    setSliderValue('config-shadeLight', 'shadeLight-val', '80');
+                    setSliderValue('config-light', 'light-val', '0');
+                    setSliderValue('config-lightCut', 'lightCut-val', '128');
+                    setSliderValue('config-darkCut', 'darkCut-val', '118');
+                    setSliderValue('config-zoom', 'zoom-val', '1.0');
 
-        // --- 动态显示滑块值 ---
-        const sliders = [
-          { id: "config-shadeLimit", valId: "shadeLimit-val" },
-          { id: "config-shadeLight", valId: "shadeLight-val" },
-          { id: "config-light", valId: "light-val" },
-          { id: "config-lightCut", valId: "lightCut-val" },
-          { id: "config-darkCut", valId: "darkCut-val" },
-          { id: "config-zoom", valId: "zoom-val" },
-        ];
+                    // 重新触发依赖检查 (通过手动触发 master 开关的 'change' 事件)
+                    document.getElementById('config-shade').dispatchEvent(new Event('change'));
+                    document.getElementById('config-watermark').dispatchEvent(new Event('change'));
+                };
 
-        sliders.forEach((item) => {
-          const slider = document.getElementById(item.id);
-          const display = document.getElementById(item.valId);
-          if (slider && display) {
-            slider.addEventListener("input", () => {
-              display.textContent = parseFloat(slider.value).toFixed(
-                slider.step == "0.1" ? 1 : 0
-              );
-            });
-          }
-        });
-
-        // --- 控件依赖关系 ---
-        const dependencies = [
-          {
-            masterId: "config-shade",
-            slaveIds: ["shade-limit-control", "shade-light-control"],
-          },
-          {
-            masterId: "config-watermark",
-            slaveIds: ["hajimei-control"],
-          },
-        ];
-
-        dependencies.forEach((dep) => {
-          const master = document.getElementById(dep.masterId);
-          if (!master) return;
-
-          const updateSlaves = () => {
-            const isDisabled = !master.checked;
-            dep.slaveIds.forEach((slaveId) => {
-              const slave = document.getElementById(slaveId);
-              if (slave) {
-                slave.setAttribute("data-disabled", isDisabled);
-                // 确保内部 input 也被禁用
-                slave
-                  .querySelectorAll("input, select")
-                  .forEach((el) => (el.disabled = isDisabled));
-              }
-            });
-          };
-
-          master.addEventListener("change", updateSlaves);
-          updateSlaves(); // 初始化状态
-        });
-
-        // --- 文件上传处理 ---
-        imageInput.addEventListener("change", () => {
-          if (imageInput.files && imageInput.files[0]) {
-            const file = imageInput.files[0];
-            fileNameDisplay.textContent = file.name;
-
-            if (originalObjectURL) URL.revokeObjectURL(originalObjectURL);
-
-            originalObjectURL = URL.createObjectURL(file);
-            originalImage.src = originalObjectURL;
-            originalImage.style.display = "block";
-            originalPlaceholder.style.display = "none";
-
-            // 清空上次结果
-            resultImage.style.display = "none";
-            resultPlaceholder.style.display = "inline";
-            if (resultObjectURL) {
-              URL.revokeObjectURL(resultObjectURL);
-              resultObjectURL = null;
+                // 绑定点击事件
+                resetButton.addEventListener('click', resetConfigToDefaults);
             }
-          } else {
-            fileNameDisplay.textContent = "未选择文件";
-          }
-        });
+            const apiForm = document.getElementById("api-form");
+            const imageInput = document.getElementById("image-input");
+            const fileNameDisplay = document.getElementById("file-name");
+            const generateButton = document.getElementById("generate-button");
 
-        // --- 表单提交 ---
-        apiForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
+            const originalImage = document.getElementById("original-image");
+            const originalPlaceholder = document.getElementById(
+                "original-placeholder"
+            );
+            const resultImage = document.getElementById("result-image");
+            const resultPlaceholder = document.getElementById("result-placeholder");
 
-          if (!imageInput.files || imageInput.files.length === 0) {
-            showError("请先选择一张图片。");
-            return;
-          }
+            const loadingIndicator = document.getElementById("loading");
+            const errorMessage = document.getElementById("error-message");
 
-          setLoading(true);
+            let originalObjectURL = null;
+            let resultObjectURL = null;
 
-          try {
-            // 1. 收集配置
-            const config = {};
-            const formElements = apiForm.elements;
+            // --- 动态显示滑块值 ---
+            const sliders = [
+                { id: "config-shadeLimit", valId: "shadeLimit-val" },
+                { id: "config-shadeLight", valId: "shadeLight-val" },
+                { id: "config-light", valId: "light-val" },
+                { id: "config-lightCut", valId: "lightCut-val" },
+                { id: "config-darkCut", valId: "darkCut-val" },
+                { id: "config-zoom", valId: "zoom-val" },
+            ];
 
-            // 收集布尔值 (Switches)
-            [
-              "shade",
-              "kuma",
-              "hajimei",
-              "watermark",
-              "convolute1Diff",
-              "denoise",
-            ].forEach((key) => {
-              const el = formElements[`config-${key}`];
-              if (el) config[key] = el.checked;
-            });
-
-            // 收集数字 (Sliders)
-            [
-              "light",
-              "shadeLimit",
-              "shadeLight",
-              "lightCut",
-              "darkCut",
-            ].forEach((key) => {
-              const el = formElements[`config-${key}`];
-              if (el) config[key] = parseInt(el.value, 10);
-            });
-            const zoomEl = formElements["config-zoom"];
-            if (zoomEl) config.zoom = parseFloat(zoomEl.value);
-
-            // 收集字符串 (Select)
-            const convoluteEl = formElements["config-convoluteName"];
-            if (convoluteEl) config.convoluteName = convoluteEl.value;
-
-            // 2. 创建 FormData
-            const formData = new FormData();
-            formData.append("image", imageInput.files[0]);
-            formData.append("config", JSON.stringify(config));
-
-            // 3. 发送请求
-            const response = await fetch("/api/generate", {
-              method: "POST",
-              body: formData,
-            });
-
-            if (!response.ok) {
-              let errorDetails = `HTTP 状态 ${response.status}: ${response.statusText}`;
-              try {
-                const errorJson = await response.json();
-                errorDetails = errorJson.error || errorDetails;
-                if (errorJson.details) {
-                  errorDetails += ` (${errorJson.details})`;
+            sliders.forEach((item) => {
+                const slider = document.getElementById(item.id);
+                const display = document.getElementById(item.valId);
+                if (slider && display) {
+                    slider.addEventListener("input", () => {
+                        display.textContent = parseFloat(slider.value).toFixed(
+                            slider.step == "0.1" ? 1 : 0
+                        );
+                    });
                 }
-              } catch (parseErr) {}
-              throw new Error(errorDetails);
+            });
+
+            // --- 控件依赖关系 ---
+            const dependencies = [
+                {
+                    masterId: "config-shade",
+                    slaveIds: ["shade-limit-control", "shade-light-control"],
+                },
+                {
+                    masterId: "config-watermark",
+                    slaveIds: ["hajimei-control"],
+                },
+            ];
+
+            dependencies.forEach((dep) => {
+                const master = document.getElementById(dep.masterId);
+                if (!master) return;
+
+                const updateSlaves = () => {
+                    const isDisabled = !master.checked;
+                    dep.slaveIds.forEach((slaveId) => {
+                        const slave = document.getElementById(slaveId);
+                        if (slave) {
+                            slave.setAttribute("data-disabled", isDisabled);
+                            // 确保内部 input 也被禁用
+                            slave
+                                .querySelectorAll("input, select")
+                                .forEach((el) => (el.disabled = isDisabled));
+                        }
+                    });
+                };
+
+                master.addEventListener("change", updateSlaves);
+                updateSlaves(); // 初始化状态
+            });
+
+            // --- 文件上传处理 ---
+            imageInput.addEventListener("change", () => {
+                if (imageInput.files && imageInput.files[0]) {
+                    const file = imageInput.files[0];
+                    fileNameDisplay.textContent = file.name;
+
+                    if (originalObjectURL) URL.revokeObjectURL(originalObjectURL);
+
+                    originalObjectURL = URL.createObjectURL(file);
+                    originalImage.src = originalObjectURL;
+                    originalImage.style.display = "block";
+                    originalPlaceholder.style.display = "none";
+
+                    // 清空上次结果
+                    resultImage.style.display = "none";
+                    resultPlaceholder.style.display = "inline";
+                    if (resultObjectURL) {
+                        URL.revokeObjectURL(resultObjectURL);
+                        resultObjectURL = null;
+                    }
+                } else {
+                    fileNameDisplay.textContent = "未选择文件";
+                }
+            });
+
+            // --- 表单提交 ---
+            apiForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                if (!imageInput.files || imageInput.files.length === 0) {
+                    showError("请先选择一张图片。");
+                    return;
+                }
+
+                setLoading(true);
+
+                try {
+                    // 1. 收集配置
+                    const config = {};
+                    const formElements = apiForm.elements;
+
+                    // 收集布尔值 (Switches)
+                    [
+                        "shade",
+                        "kuma",
+                        "hajimei",
+                        "watermark",
+                        "convolute1Diff",
+                        "denoise",
+                    ].forEach((key) => {
+                        const el = formElements[`config-${key}`];
+                        if (el) config[key] = el.checked;
+                    });
+
+                    // 收集数字 (Sliders)
+                    [
+                        "light",
+                        "shadeLimit",
+                        "shadeLight",
+                        "lightCut",
+                        "darkCut",
+                    ].forEach((key) => {
+                        const el = formElements[`config-${key}`];
+                        if (el) config[key] = parseInt(el.value, 10);
+                    });
+                    const zoomEl = formElements["config-zoom"];
+                    if (zoomEl) config.zoom = parseFloat(zoomEl.value);
+
+                    // 收集字符串 (Select)
+                    const convoluteEl = formElements["config-convoluteName"];
+                    if (convoluteEl) config.convoluteName = convoluteEl.value;
+
+                    // 2. 创建 FormData
+                    const formData = new FormData();
+                    formData.append("image", imageInput.files[0]);
+                    formData.append("config", JSON.stringify(config));
+
+                    // 3. 发送请求
+                    const response = await fetch("/api/generate", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        let errorDetails = `HTTP 状态 ${response.status}: ${response.statusText}`;
+                        try {
+                            const errorJson = await response.json();
+                            errorDetails = errorJson.error || errorDetails;
+                            if (errorJson.details) {
+                                errorDetails += ` (${errorJson.details})`;
+                            }
+                        } catch (parseErr) { }
+                        throw new Error(errorDetails);
+                    }
+
+                    // 4. 显示结果
+                    const imageBlob = await response.blob();
+
+                    if (resultObjectURL) URL.revokeObjectURL(resultObjectURL);
+
+                    resultObjectURL = URL.createObjectURL(imageBlob);
+                    resultImage.src = resultObjectURL;
+                    resultImage.style.display = "block";
+                    resultPlaceholder.style.display = "none";
+                } catch (err) {
+                    console.error("生成失败:", err);
+                    showError(`生成失败: ${err.message}`);
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            function setLoading(isLoading) {
+                loadingIndicator.style.display = isLoading ? "block" : "none";
+                generateButton.disabled = isLoading;
+                if (isLoading) {
+                    errorMessage.style.display = "none";
+                }
             }
 
-            // 4. 显示结果
-            const imageBlob = await response.blob();
-
-            if (resultObjectURL) URL.revokeObjectURL(resultObjectURL);
-
-            resultObjectURL = URL.createObjectURL(imageBlob);
-            resultImage.src = resultObjectURL;
-            resultImage.style.display = "block";
-            resultPlaceholder.style.display = "none";
-          } catch (err) {
-            console.error("生成失败:", err);
-            showError(`生成失败: ${err.message}`);
-          } finally {
-            setLoading(false);
-          }
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = "block";
+            }
         });
-
-        function setLoading(isLoading) {
-          loadingIndicator.style.display = isLoading ? "block" : "none";
-          generateButton.disabled = isLoading;
-          if (isLoading) {
-            errorMessage.style.display = "none";
-          }
-        }
-
-        function showError(message) {
-          errorMessage.textContent = message;
-          errorMessage.style.display = "block";
-        }
-      });
     </script>
-  </body>
+</body>
+
 </html>
