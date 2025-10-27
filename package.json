@@ -4,5 +4,8 @@
   "dependencies": {
     "canvas": "^2.11.2",
     "formidable-serverless": "^1.1.1"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
