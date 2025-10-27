@@ -1,5 +1,5 @@
 const { generateOneLastImage, initialize } = require('../oneLastImageAPI');
-const formidable = require('formidable-serverless');
+const { formidable } = require('formidable');
 const fs = require('fs');
 
 // 初始化资源
@@ -11,10 +11,28 @@ let initPromise = initialize().catch(err => {
 // 辅助函数：解析 Vercel 的请求
 function parseForm(req) {
     return new Promise((resolve, reject) => {
-        const form = new formidable.IncomingForm();
+        const form = formidable({}); 
+        
         form.parse(req, (err, fields, files) => {
             if (err) return reject(err);
-            resolve({ fields, files });
+            const unwrappedFields = {};
+            for (const key in fields) {
+                if (Array.isArray(fields[key]) && fields[key].length > 0) {
+                    unwrappedFields[key] = fields[key][0];
+                } else {
+                    unwrappedFields[key] = undefined;
+                }
+            }
+            const unwrappedFiles = {};
+            for (const key in files) {
+                if (Array.isArray(files[key]) && files[key].length > 0) {
+                    unwrappedFiles[key] = files[key][0]; 
+                } else {
+                    unwrappedFiles[key] = undefined;
+                }
+            }
+            
+            resolve({ fields: unwrappedFields, files: unwrappedFiles });
         });
     });
 }
@@ -43,7 +61,7 @@ module.exports = async (req, res) => {
         }
 
         // 3. 读取上传的图片 buffer
-        const imageBuffer = fs.readFileSync(files.image.path);
+        const imageBuffer = fs.readFileSync(files.image.filepath);
 
         // 4. 解析配置
         let userConfig = {};

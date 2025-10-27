@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "canvas": "^2.11.2",
-    "formidable-serverless": "^1.1.1"
+    "formidable": "^3.5.1"
   },
   "engines": {
     "node": "20.x"
