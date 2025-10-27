@@ -1,12 +1,11 @@
 {
-  "installCommand": "bash build-vercel.sh && npm install",
-  "functions": {
-    "api/generate.js": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
+  "name": "one-last-image-api",
+  "version": "1.0.0",
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "formidable-serverless": "^1.1.1"
   },
-  "routes": [
-    { "src": "/api/generate", "dest": "/api/generate.js" }
-  ]
+  "engines": {
+    "node": "18.x"
+  }
 }
