@@ -1,0 +1,8 @@
+{
+  "name": "one-last-image-api",
+  "version": "1.0.0",
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "formidable-serverless": "^1.1.1"
+  }
+}

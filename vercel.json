@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "api/generate.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "html",
+        "buildCommand": "bash build-vercel.sh && npm install"
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/api/generate", "dest": "/api/generate.js" }
+  ]
+}
