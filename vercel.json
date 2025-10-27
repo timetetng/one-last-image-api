@@ -1,4 +1,5 @@
 {
+  "installCommand": "bash build-vercel.sh && npm install",
   "functions": {
     "api/generate.js": {
       "memory": 1024,
